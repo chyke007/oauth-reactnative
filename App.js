@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Container, Content, Header, Form, Input, Item, Button, Label } from 'native-base';
 import * as firebase from 'firebase';
+import * as Facebook from 'expo-facebook';
 
 //Initialize firebase
 const firebaseConfig = {
@@ -23,6 +24,11 @@ export default class App extends Component {
       password:''
     })
   }
+componentDidMount(){
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log(user)
+    })
+}
 
 signUpUser = (email,password) => {
 
@@ -49,6 +55,20 @@ loginUser = (email,password) => {
   }catch(e){
     alert(e)
   }
+}
+
+async LoginWithFacebook(){
+  
+  const { type,token } = await Facebook.logInWithReadPermissionsAsync('2336903713292417',{permissions:['public_profile']})
+
+
+ if(type == 'success'){
+  const credential = firebase.auth.FacebookAuthProvider.credential(token)
+  
+  firebase.auth().signInWithCredential(credential).catch((error) => {
+    console.log(error);
+  })
+    }
 }
   render() {
     return (
@@ -89,6 +109,15 @@ loginUser = (email,password) => {
             onPress={() => this.signUpUser(this.state.email,this.state.password)}
           >
             <Text style={{ color:'white' }}> Sign Up </Text>
+          </Button> 
+
+            <Button style={{ marginTop: 10 }}
+            full
+            rounded
+            primary
+            onPress={() => this.LoginWithFacebook()}
+          >
+            <Text style={{ color:'white' }}> Login With Facebook </Text>
           </Button> 
         </Form>
       </Container>
